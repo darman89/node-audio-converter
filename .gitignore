@@ -59,3 +59,10 @@ typings/
 
 # next.js build output
 .next
+
+# config files
+config.json
+
+# Idea Folder and Sonarlint
+.sonarlint/
+.idea/
