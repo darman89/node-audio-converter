@@ -1,5 +1,6 @@
 module.exports = {
     process: function (job) {
+        return new Promise(resolve => {
         let ffmpeg = require('fluent-ffmpeg');
         let nodemailer = require('nodemailer');
         let aws = require('aws-sdk');
@@ -18,6 +19,7 @@ module.exports = {
               console.log(error);
             } else {
               console.log('Message sent: ' + info.response);
+              resolve(info);
             }
         }
 
@@ -27,12 +29,12 @@ module.exports = {
             secretKey: `${process.env.MINIO_SECRET_KEY}`
         });
 
-        minioClient.fGetObject(`${process.env.MINIO_BUCKET_AUDIO_ORIGINAL}`, job.data.audio, path + job.data.audio, function (err) {
+        minioClient.fGetObject(`${process.env.MINIO_BUCKET_AUDIO_ORIGINAL}`, job.MessageAttributes.audio.StringValue, path + job.MessageAttributes.audio.StringValue, function (err) {
             if (err) {
                 return console.log(err)
             }
 
-            ffmpeg(path + job.data.audio)
+            ffmpeg(path + job.MessageAttributes.audio.StringValue)
                 .toFormat('mp3')
                 .on('end', function (err) {
                     if (err) {
@@ -40,7 +42,7 @@ module.exports = {
                     }
 
                     outStream.destroy();
-                    fs.unlink(path + job.data.audio, (err) => {
+                    fs.unlink(path + job.MessageAttributes.audio.StringValue, (err) => {
                         if (err) {
                             console.error(err)
                             return
@@ -67,7 +69,7 @@ module.exports = {
                             }).then(newAudio => {
                                 modelos.Voz.findOne({
                                     where: {
-                                        id: job.data.voz,
+                                        id: job.MessageAttributes.voz.StringValue,
                                     }
                                 }).then(newVoice => {
                                     if (!newVoice) {
@@ -79,10 +81,10 @@ module.exports = {
                                         }).then(() => {
                                             var mailOptions = {
                                                 from: 'Supervoices <'+process.env.MAIL_FROM+'>',
-                                                to: job.data.email,
+                                                to: job.MessageAttributes.email.StringValue,
                                                 subject: 'Hola desde Supervoices',
-                                                text: 'Hola '+job.data.usuario+'!, tu voz ya está disponible en el concurso  <<'+job.data.url_minio+'">>. Por favor copia y pega este link en el navegador: '+job.data.concurso,
-                                                html: 'Hola '+job.data.usuario+'!, tu voz ya está disponible en el concurso  <a href="'+job.data.url_minio+'"><strong>'+job.data.concurso+'</strong></a>',
+                                                text: 'Hola '+job.MessageAttributes.usuario.StringValue+'!, tu voz ya está disponible en el concurso  <<'+job.MessageAttributes.url_minio.StringValue+'">>. Por favor copia y pega este link en el navegador: '+job.MessageAttributes.concurso.StringValue,
+                                                html: 'Hola '+job.MessageAttributes.usuario.StringValue+'!, tu voz ya está disponible en el concurso  <a href="'+job.MessageAttributes.url_minio.StringValue+'"><strong>'+job.MessageAttributes.concurso.StringValue+'</strong></a>',
                                               };
                                               
                                             // Send e-mail using AWS SES
@@ -105,12 +107,12 @@ module.exports = {
                     console.log('an error happened: ' + err.message);
                 })
                 .on('progress', function (progress) {
-                    job.progress(progress);
                     console.log('Processing: ' + progress.percent.toFixed(2) + '%');
 
                 })
                 .writeToStream(outStream, {end: true})
         });
 
+    })
     }
 }
