@@ -1,26 +1,27 @@
+require('dotenv').config();
 module.exports = {
-  development: {
-    "host": 'localhost',
-    "username": 'root',
-    "password": '',
-    "database": 'proyectouno',
-    "port": 26257,
-    "dialect": "postgres"
-  },
-  test: {
-    "host": '192.168.99.100',
-    "username": 'postgres',
-    "password": 'postgres',
-    "database": 'proyectouno',
-    "port": process.env.DB_PORT,
-    "dialect": "postgres"
-  },
-  production: {
-    "host": '192.168.99.100',
-    "username": 'postgres',
-    "password": 'postgres',
-    "database": 'proyectouno',
-    "port": process.env.DB_PORT,
-    "dialect": "postgres"
-  }
+    development: {
+        "host": `${process.env.COCKROACH_HOST}`,
+        "username": `${process.env.COCKROACH_USER}`,
+        "password": `${process.env.COCKROACH_PASS}`,
+        "database": `${process.env.COCKROACH_DB}`,
+        "port": 26257,
+        "dialect": "postgres"
+    },
+    test: {
+        "host": `${process.env.COCKROACH_HOST}`,
+        "username": `${process.env.COCKROACH_USER}`,
+        "password": `${process.env.COCKROACH_PASS}`,
+        "database": `${process.env.COCKROACH_DB}`,
+        "port": 26257,
+        "dialect": "postgres"
+    },
+    production: {
+        "host": `${process.env.COCKROACH_HOST}`,
+        "username": `${process.env.COCKROACH_USER}`,
+        "password": `${process.env.COCKROACH_PASS}`,
+        "database": `${process.env.COCKROACH_DB}`,
+        "port": 26257,
+        "dialect": "postgres"
+    }
 };

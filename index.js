@@ -1,22 +1,15 @@
 require('dotenv').config();
 var express = require('express');
 var logger = require('morgan');
-var Queue = require('bull');
 var app = express();
 var convertidor = require('./convertidor');
 const { Consumer } = require('sqs-consumer');
 var aws = require('aws-sdk');
 
-aws.config.loadFromPath('config.json');
+aws.config.region = `${process.env.AWS_SECRET_REGION}`;
 
 // Logger Aplicación
 app.use(logger('dev'));
-
-/*var audioQueue = new Queue('audio_converter', {redis: {port: process.env.REDIS_PORT, host: `${process.env.REDIS_HOST}`, password:''}});
-
-audioQueue.process( function(job){
-    convertidor.process(job)
-});*/
 
 const audioQueue = Consumer.create({
     queueUrl: `${process.env.SQS_QUEUE_URL}`,

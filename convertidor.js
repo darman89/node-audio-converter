@@ -2,8 +2,9 @@ module.exports = {
     process: function (job) {
         return new Promise(resolve => {
         let ffmpeg = require('fluent-ffmpeg');
-        let nodemailer = require('nodemailer');
-        let aws = require('aws-sdk');
+        // let nodemailer = require('nodemailer');
+        let Mailgun = require('mailgun-js');
+        //let aws = require('aws-sdk');
         let minio = require('minio');
         let fs = require('fs');
         let crypto = require('crypto');
@@ -12,14 +13,15 @@ module.exports = {
         let path = process.env.TEMP_PATH;
         let outStream = fs.createWriteStream(path + temp_file);
 
-        aws.config.loadFromPath('config.json');
+        let mailgun = new Mailgun({apiKey: process.env.MAILGUN_API_KEY, domain: process.env.MAILGUN_DOMAIN});
+        //aws.config.region = `${process.env.AWS_SECRET_REGION}`;
 
         function callback(error, info) {
             if (error) {
               console.log(error);
             } else {
-              console.log('Message sent: ' + info.response);
-              resolve(info);
+              console.log('Message sent: ' + info.message);
+              resolve(info.id);
             }
         }
 
@@ -86,15 +88,17 @@ module.exports = {
                                                 text: 'Hola '+job.MessageAttributes.usuario.StringValue+'!, tu voz ya está disponible en el concurso  <<'+job.MessageAttributes.url_minio.StringValue+'">>. Por favor copia y pega este link en el navegador: '+job.MessageAttributes.concurso.StringValue,
                                                 html: 'Hola '+job.MessageAttributes.usuario.StringValue+'!, tu voz ya está disponible en el concurso  <a href="'+job.MessageAttributes.url_minio.StringValue+'"><strong>'+job.MessageAttributes.concurso.StringValue+'</strong></a>',
                                               };
-                                              
+
+                                            mailgun.messages().send(mailOptions, callback);
+
                                             // Send e-mail using AWS SES
-                                            mailOptions.subject = 'Hola desde Supervoices';
+                                            /*mailOptions.subject = 'Hola desde Supervoices';
                                             var sesTransporter = nodemailer.createTransport({
                                                 SES: new aws.SES({
                                                     apiVersion: 'latest'
                                                 })
                                             });
-                                            sesTransporter.sendMail(mailOptions, callback);
+                                            sesTransporter.sendMail(mailOptions, callback);*/
                                         });
                                     }
                                 })
