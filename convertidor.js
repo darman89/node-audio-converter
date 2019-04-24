@@ -2,9 +2,7 @@ module.exports = {
     process: function (job) {
         return new Promise(resolve => {
         let ffmpeg = require('fluent-ffmpeg');
-        // let nodemailer = require('nodemailer');
         let Mailgun = require('mailgun-js');
-        //let aws = require('aws-sdk');
         let minio = require('minio');
         let fs = require('fs');
         let crypto = require('crypto');
