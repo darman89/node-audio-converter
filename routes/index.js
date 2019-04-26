@@ -11,7 +11,7 @@ router.get("/hirefire/"+`${process.env.HIREFIRE_TOKEN}`+'/info', (req, res) => {
         if (err) {
             return res.status(400).json([{"error" : err, }]);
         }else{
-            return res.status(200).json([{"name" : "worker", "quantity": size}]);
+            return res.status(200).json([{"name" : "web", "quantity": Number(size)}]);
         }
     });
 });
